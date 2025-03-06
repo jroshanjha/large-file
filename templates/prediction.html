@@ -1,0 +1,364 @@
+<!-- include "index.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Prediction System</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/predict.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Loan Prediction System</h1>
+            <p>Enter your details below to check loan eligibility</p>
+        </div>
+
+        <form class="loan-form" id="loanForm" >
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="person_age">Age</label>
+                    <input type="number" id="person_age" name="person_age" class="form-control" required min="18" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="person_gender">Gender</label>
+                    <select id="person_gender" name="person_gender" class="form-control" required>
+                        <option value="">Select Gender</option>
+                        <option value="1">Male</option>
+                        <option value="0">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="person_education">Education Level</label>
+                    <select id="person_education" name="person_education" class="form-control" required>
+                        <option value="">Select Education</option>
+                        <option value="0">Associate</option>
+                        <option value="1">Bachelor's Degree</option>
+                        <option value="2">Doctorate </option>
+                        <option value="3">High School</option>
+                        <option value="4">Master's Degree</option>
+                      <!--   <option value="phd">PhD</option> -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="person_income">Annual Income ($)</label>
+                    <input type="number" id="person_income" name="person_income" class="form-control" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="person_emp_exp">Employment Experience (Years)</label>
+                    <input type="number" id="person_emp_exp" name="person_emp_exp" class="form-control" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="person_home_ownership">Home Ownership</label>
+                    <select id="person_home_ownership" name="person_home_ownership" class="form-control" required>
+                        <option value="">Select Ownership Type</option>
+                        <option value="2">OWN</option>
+                        <option value="0">MORTGAGE</option>
+                        <option value="3">RENT</option>
+                        <option value="1">OTHER</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="loan_amnt">Loan Amount ($)</label>
+                    <input type="number" id="loan_amnt" name="loan_amnt" class="form-control" required min="1000">
+                </div>
+
+                <div class="form-group">
+                    <label for="loan_intent">Loan Intent</label>
+                    <select id="loan_intent" name="loan_intent" class="form-control" required>
+                        <option value="">Select Intent</option>
+                        <option value="1">EDUCATION</option>
+                        <option value="3">MEDICAL</option>
+                        <option value="5">BUSINESS VENTURE</option>
+                        <option value="4">PERSONAL</option>
+                        <option value="2">HOMEIMPROVEMENT</option>
+                        <option value="0">DEBT CONSOLIDATION</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="loan_int_rate">Interest Rate (%)</label>
+                    <input type="number" id="loan_int_rate" name="loan_int_rate" class="form-control" required min="1" max="30" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="loan_percent_income">Loan Percent Income (%)</label>
+                    <input type="number" id="loan_percent_income" name="loan_percent_income" class="form-control" required min="0" max="100" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="cb_person_cred_hist_length">Credit History Length (Years)</label>
+                    <input type="number" id="cb_person_cred_hist_length" name="cb_person_cred_hist_length" class="form-control" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="credit_score">Credit Score</label>
+                    <input type="number" id="credit_score" name="credit_score" class="form-control" required min="300" max="850">
+                </div>
+
+                <div class="form-group">
+                    <label for="previous_loan_defaults">Previous Loan Defaults</label>
+                    <select id="previous_loan_defaults" name="previous_loan_defaults" class="form-control" required>
+                        <option value="">Select Option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="credit_score">Loan Term (months)</label>
+                    <input type="number" id="credit_score" name="loan_term" class="form-control" required min=3 max=24><!-- Add this field -->
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Check Loan Eligibility</button>
+        </form>
+    </div>
+
+
+    <!--###################################################-->
+    <!--###################################################-->
+    <!--###################################################-->
+    <!--###################################################-->
+    <!--###################################################-->
+    <!-- Loan Prediction result-->
+    <div class="container" id ='changed_status' style=''>
+        <div class="header">
+            <h1>Loan Prediction Results</h1>
+        </div>
+        <div class="download-section">
+            <h1 style='color:black;'>Download Prediction Results</h1>
+            <div class="download-buttons">
+                <button id="downloadCSV">Download CSV Report</button>
+                <button id="downloadExcel">Download Excel Report</button>
+                <button id="downloadPDF">Download PDF Report</button>
+                <button id="downloadWord">Download Word Report</button>
+            </div>
+        </div>
+
+        <div class="prediction-container">
+            <div class="prediction-card">
+                <div class="prediction-result approved" id="predictionResult">
+                    <h2>Loan Application Status</h2>
+                    <div class="prediction-score">92%</div>
+                    <p>Probability of Successful Repayment</p>
+                </div>
+
+                <div class="risk-factors">
+                    <h3>Risk Assessment Factors</h3>
+                    <div class="risk-factor">
+                        <span>Credit Score</span>
+                        <span class="risk-indicator risk-low">Low Risk</span>
+                    </div>
+                    <div class="risk-factor">
+                        <span>Debt-to-Income Ratio</span>
+                        <span class="risk-indicator risk-medium">Medium Risk</span>
+                    </div>
+                    <div class="risk-factor">
+                        <span>Employment History</span>
+                        <span class="risk-indicator risk-low">Low Risk</span>
+                    </div>
+                    <div class="risk-factor">
+                        <span>Loan Amount</span>
+                        <span class="risk-indicator risk-medium">Medium Risk</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prediction-card">
+                <h3>Application Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Loan Amount</div>
+                        <div class="detail-value">$<span id="loanAmount">25,000</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Interest Rate</div>
+                        <div class="detail-value"><span id="interestRate">5.2</span>%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Monthly Payment</div>
+                        <div class="detail-value">$<span id="monthlyPayment">472</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Loan Term</div>
+                        <div class="detail-value"><span id="loanTerm">60</span> months</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/" class="btn btn-secondary">New Application</a>
+            <a href="#" class="btn btn-primary" id="downloadReport">Download Report</a>
+        </div>
+    </div>
+
+    <script>
+        // Function to update prediction results
+        function updatePredictionResults(data) {
+            //alert(data);
+            const resultDiv = document.getElementById('predictionResult');
+            const probability = data.probability * 100;
+
+            // Update prediction score and styling
+            if (data.prediction == 1) {
+                resultDiv.className = 'prediction-result approved';
+                resultDiv.innerHTML = `
+                    <h2>Loan Application Status</h2>
+                    <div class="prediction-score">${probability.toFixed(1)}%</div>
+                    <p style='background-color:brown; color:white'>Probability of Successful Repayment</p>
+                    <p>Based on the provided information, there is a ${ probability }% chance of loan default(High Risk default).</p>
+                `;
+            } else {
+                resultDiv.className = 'prediction-result rejected';
+                resultDiv.innerHTML = `
+                    <h2>Loan Application Status</h2>
+                    <div class="prediction-score">${(100 - probability).toFixed(1)}%</div>
+                    <p style='background-color:brown; color:white'>Risk of Default</p><br>
+                    <p style='background-color:blue; color:white'>Based on the provided information, there is a ${100 - probability }% chance of loan default (Low Risk default).</p>
+                `;
+            }
+
+            // Update application details
+            document.getElementById('loanAmount').textContent = 
+                parseFloat(data.loan_amount).toLocaleString();
+            document.getElementById('interestRate').textContent = 
+                data.interest_rate.toFixed(1);
+            document.getElementById('monthlyPayment').textContent = 
+                calculateMonthlyPayment(data.loan_amount, data.interest_rate, data.loan_term);
+            document.getElementById('loanTerm').textContent = data.loan_term;
+
+             // Store data for report download 
+             document.getElementById('downloadReport').dataset.report = JSON.stringify(data);
+        }
+
+        // Calculate monthly payment
+        function calculateMonthlyPayment(principal, rate, term) {
+            const monthlyRate = (rate / 100) / 12;
+            const payments = term;
+            const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, payments)) / 
+                (Math.pow(1 + monthlyRate, payments) - 1);
+            return Math.round(payment).toLocaleString();
+        }
+
+        // Download report functionality 
+        document.getElementById('downloadReport').addEventListener('click', (e) => { e.preventDefault(); 
+            const reportData = JSON.parse(e.target.dataset.report); 
+            const csvContent = generateCSV(reportData); 
+            downloadCSV(csvContent, 'loan_report.csv'); });
+
+        // Function to generate CSV content 
+            function generateCSV(data) { 
+                const header = ['Field', 'Value']; 
+                const rows = [ 
+                ['Prediction', data.prediction == 1 ? 'Loan Approved' : 'Loan Denied'], 
+                ['Probability', (data.probability * 100).toFixed(1) + '%'], 
+                ['Loan Amount', parseFloat(data.loan_amount).toLocaleString()], 
+                ['Interest Rate', data.interest_rate.toFixed(1) + '%'], 
+                ['Monthly Payment', calculateMonthlyPayment(data.loan_amount, data.interest_rate, data.loan_term)], 
+                ['Loan Term', data.loan_term]]; 
+                const csvRows = [header, ...rows].map(row => row.join(',')); 
+                return csvRows.join('\n'); 
+            }
+        /// Function to trigger download of CSV file 
+        function downloadCSV(content, filename) { 
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' }); 
+            const link = document.createElement('a'); 
+            if (link.download !== undefined) { // feature detection 
+                const url = URL.createObjectURL(blob); 
+                link.setAttribute('href', url); 
+                link.setAttribute('download', filename); 
+                link.style.visibility = 'hidden'; 
+                document.body.appendChild(link); 
+                link.click(); 
+            document.body.removeChild(link); 
+            } 
+        }
+    </script>
+
+    <script> 
+
+       /* fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                // Your input data here
+            })
+        })
+        
+        .then(response => response.json())
+        .then(data => {
+            updatePredictionResults(data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        }); */
+        
+    </script>
+
+    <script> 
+
+        // Handle form submission 
+        document.getElementById('loanForm').addEventListener('submit', function(event) { 
+            //document.getElementById('changed_status').style('display','block')
+            event.preventDefault(); 
+            const formData = new FormData(event.target); 
+            const formObject = {}; 
+            formData.forEach((value, key) => { formObject[key] = value; }); 
+            fetch('/api/predict', 
+            { method: 'POST',
+             body: new URLSearchParams(formObject)
+            })
+            .then(response => response.json())
+            .then(data => { updatePredictionResults(data); }) 
+            .catch((error) => { console.error('Error:', error); }); });
+
+    </script>
+
+    <script type="text/javascript">
+        // Function to download report 
+        function downloadReport(filetype){ 
+            const reportData = JSON.parse(document.getElementById('downloadReport').dataset.report); 
+            fetch(`/download-report/${filetype}`,{ 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', }, 
+                body: JSON.stringify(reportData) }) 
+                .then(response => response.blob()) 
+                .then(blob => { 
+                const url = window.URL.createObjectURL(blob); 
+                const a = document.createElement('a'); 
+                a.style.display = 'none'; 
+                a.href = url; 
+                a.download = `report.${filetype}`; 
+                document.body.appendChild(a); 
+                a.click(); 
+                window.URL.revokeObjectURL(url); 
+            }) 
+            .catch((error) => console.error('Error:', error)); 
+        }
+
+        // Event listeners for report download buttons 
+        document.getElementById('downloadCSV').addEventListener('click', (e) => 
+        { e.preventDefault(); downloadReport('csv'); }); 
+
+        document.getElementById('downloadExcel').addEventListener('click', (e) => 
+        { e.preventDefault(); downloadReport('xlsx'); }); 
+
+        document.getElementById('downloadPDF').addEventListener('click', (e) => 
+        { e.preventDefault(); downloadReport('pdf'); }); 
+
+        document.getElementById('downloadWord').addEventListener('click', (e) =>
+        { e.preventDefault(); downloadReport('docx'); });
+
+</script> 
+</body>
+</html>

@@ -1,0 +1,15 @@
+Flask
+scikit-learn==1.3.0
+gunicorn
+numpy==1.24.3
+pandas  
+#scipy
+seaborn 
+matplotlib
+#statistics
+pickle
+joblib==1.3.0
+flask-cors 
+openpyxl 
+fpdf 
+python-docx

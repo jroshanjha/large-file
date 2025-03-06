@@ -1,0 +1,207 @@
+<script>
+    document.getElementById('loanPredictionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const resultDiv = document.getElementById('result');
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            resultDiv.style.display = 'block';
+            if (data.prediction === 1) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>High Risk of Default</h3>
+                    <p>Based on the provided information, there is a ${(data.probability * 100).toFixed(2)}% chance of loan default.</p>`;
+            } else {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `<h3>Low Risk of Default</h3>
+                    <p>Based on the provided information, there is a ${((1 - data.probability) * 100).toFixed(2)}% chance of successful loan repayment.</p>`;
+            }
+        } catch (error) {
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = '<h3>Error</h3><p>An error occurred while processing your request. Please try again.</p>';
+        }
+    });
+
+    // Form validation
+    const form = document.getElementById('loanPredictionForm');
+    const inputs = form.querySelectorAll('input[type="number"]');
+
+    inputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            const min = parseFloat(e.target.min);
+            const max = parseFloat(e.target.max);
+
+            if (min && value < min) {
+                e.target.value = min;
+            }
+            if (max && value > max) {
+                e.target.value = max;
+            }
+        });
+    });
+</script>
+
+...................................
+......................................
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Prediction</title>
+    <style>
+        .prediction-result { margin-top: 20px; }
+        .approved { color: green; }
+        .rejected { color: red; }
+        .prediction-score { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Loan Prediction System</h1>
+            <p>Enter your details below to check loan eligibility</p>
+        </div>
+
+        <form class="loan-form" id="loanForm">
+            <div class="form-grid">
+                <!-- Your form fields go here -->
+                <div class="form-group">
+                    <label for="person_age">Age</label>
+                    <input type="number" id="person_age" name="person_age" class="form-control" required min="18" max="100">
+                </div>
+                <!-- Add other form fields as needed -->
+                <div class="form-group">
+                    <label for="loan_term">Loan Term (months)</label>
+                    <input type="number" id="loan_term" name="loan_term" class="form-control" required min="3" max="24">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Check Loan Eligibility</button>
+        </form>
+        <div id="predictionResult"></div>
+        <div>
+            <h3>Application Details</h3>
+            <p>Loan Amount: <span id="loanAmount"></span></p>
+            <p>Interest Rate: <span id="interestRate"></span>%</p>
+            <p>Monthly Payment: <span id="monthlyPayment"></span></p>
+            <p>Loan Term: <span id="loanTerm"></span> months</p>
+            <button id="downloadCSV">Download CSV Report</button>
+            <button id="downloadExcel">Download Excel Report</button>
+            <button id="downloadPDF">Download PDF Report</button>
+            <button id="downloadWord">Download Word Report</button>
+        </div>
+    </div>
+    <script>
+        // Function to update prediction results
+        function updatePredictionResults(data) {
+            const resultDiv = document.getElementById('predictionResult');
+            const probability = data.probability * 100;
+
+            // Update prediction score and styling
+            if (data.prediction === 0) {
+                resultDiv.className = 'prediction-result approved';
+                resultDiv.innerHTML = `
+                    <h2>Loan Application Status</h2>
+                    <div class="prediction-score">${probability.toFixed(1)}%</div>
+                    <p>Probability of Successful Repayment</p>
+                `;
+            } else {
+                resultDiv.className = 'prediction-result rejected';
+                resultDiv.innerHTML = `
+                    <h2>Loan Application Status</h2>
+                    <div class="prediction-score">${(100 - probability).toFixed(1)}%</div>
+                    <p>Risk of Default</p>
+                `;
+            }
+
+            // Update application details
+            document.getElementById('loanAmount').textContent = 
+                parseFloat(data.loan_amount).toLocaleString();
+            document.getElementById('interestRate').textContent = 
+                data.interest_rate.toFixed(1);
+            document.getElementById('monthlyPayment').textContent = 
+                calculateMonthlyPayment(data.loan_amount, data.interest_rate, data.loan_term);
+            document.getElementById('loanTerm').textContent = data.loan_term;
+
+            // Store data for report download
+            document.getElementById('downloadReport').dataset.report = JSON.stringify(data);
+        }
+
+        // Function to calculate monthly payment
+        function calculateMonthlyPayment(principal, rate, term) {
+            const monthlyRate = (rate / 100) / 12;
+            const payments = term;
+            const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, payments)) / 
+                (Math.pow(1 + monthlyRate, payments) - 1);
+            return Math.round(payment).toLocaleString();
+        }
+
+        // Handle form submission
+        document.getElementById('loanForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const formObject = {};
+            formData.forEach((value, key) => { formObject[key] = value; });
+
+            fetch('/predict', {
+                method: 'POST',
+                body: new URLSearchParams(formObject)
+            })
+            .then(response => response.json())
+            .then(data => {
+                updatePredictionResults(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Function to download report
+        function downloadReport(filetype) {
+            const reportData = JSON.parse(document.getElementById('downloadReport').dataset.report);
+            fetch(`/download-report/${filetype}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(reportData)
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `report.${filetype}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch((error) => console.error('Error:', error));
+        }
+
+        // Event listeners for report download buttons
+        document.getElementById('downloadCSV').addEventListener('click', (e) => {
+            e.preventDefault();
+            downloadReport('csv');
+        });
+        document.getElementById('downloadExcel').addEventListener('click', (e) => {
+            e.preventDefault();
+            downloadReport('xlsx');
+        });
+        document.getElementById('downloadPDF').addEventListener('click', (e) => {
+            e.preventDefault();
+            downloadReport('pdf');
+        });
+        document.getElementById('downloadWord').addEventListener('click', (e) => {
+            e.preventDefault[_{{{CITATION{{{_1{](https://github.com/CharlieSwires/address-book/tree/c2a5c9bd808b858cfc30b3ebc5580b332752045d/src%2Fmain%2Fwebapp%2Faddress-app%2Fsrc%2Fcomponents%2Fmiddle%2FMiddle.js)[_{{{CITATION{{{_2{](https://github.com/meet-panchal/instagram-image-downloader/tree/be948dd4405487176aa5cdc395ff4de440644556/content-scripts%2Fcontent.js)

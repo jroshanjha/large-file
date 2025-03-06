@@ -1,0 +1,27 @@
+<!--templates/result.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Loan Prediction Results</h1>
+        <div class="result">
+            <h2>The Loan predicted :{{ prediction[0] }} 
+                {% if prediction[0] == 1 %} 
+                <h3>High Risk of Default</h3> 
+                <p>Based on the provided information, there is a {{ probabilities[0][1] * 100 }}% chance of loan default.</p> 
+                {% else %} 
+                <h3>Low Risk of Default</h3> 
+                <p>Based on the provided information, there is a {{ probabilities[0][0] * 100 }}% chance of loan default.</p> 
+                {% endif %}
+                
+            </h2>
+        </div>
+        <a href="{{ url_for('index') }}" class="back-button">Make Another Prediction</a>
+        <a href="{{ url_for('predict') }}" class="back-button">Make Another Prediction</a>
+    </div>
+</body>
+</html>

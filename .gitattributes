@@ -1,0 +1,11 @@
+<<<<<<< HEAD
+models/trained_model.pkl filter=lfs diff=lfs merge=lfs -text
+*.pkl filter=lfs diff=lfs merge=lfs -text
+=======
+<<<<<<< HEAD
+models/trained_model.pkl filter=lfs diff=lfs merge=lfs -text
+=======
+models/trained_model.pkl filter=lfs diff=lfs merge=lfs -text
+>>>>>>> b887dba6ee7ca7b233e37dfd7ea47c367f30e12c
+>>>>>>> 98c219e933690100f33036a59eddc0da467b5b7e
+*.joblib filter=lfs diff=lfs merge=lfs -text
