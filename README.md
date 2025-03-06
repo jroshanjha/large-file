@@ -32,3 +32,24 @@ git push origin development
 
 git lfs push --all origin main
 
+
+✅ Solution 1: Pull the Latest Changes Before Pushing
+git pull origin main
+git push origin main
+✅ Solution 2: Force Push (If You Want to Overwrite Remote Changes)
+⚠ Warning: This will overwrite any remote changes and may cause data loss for others.
+Use only if you're sure that your local changes should replace the remote ones.
+git push --force origin main
+
+
+# Install Git LFS
+git lfs install  
+
+# Track large files (e.g., .h5, .pkl, .pt, .model)
+git lfs track "*.h5" "*.pkl" "*.pt" "*.model"
+
+# Add, commit, and push as usual
+git add .gitattributes
+git add model.h5
+git commit -m "Add ML model"
+git push origin main
